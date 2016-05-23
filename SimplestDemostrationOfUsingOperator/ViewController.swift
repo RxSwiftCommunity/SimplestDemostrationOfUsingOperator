@@ -17,7 +17,7 @@ func runAfterDelay(delay: NSTimeInterval, block: dispatch_block_t) {
 class MyDisposableResource: Disposable {
     
     let myObservable = Observable<Int32>.interval(1.0, scheduler: MainScheduler.instance)
-    var disposable: Disposable
+    let disposable: Disposable
     
     init() {
         disposable = myObservable.subscribeNext { _ in print("🕗") }
@@ -35,9 +35,11 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Create a Disposable resource (MyDisposableResource) whose lifespan is the same than the observable given by the observableFactory closure (Observable<Int32>). The observable given by the observableFactory closure is the returned by Observable.using constructor.
+        // The observableFactory closure returns a Observable (Observable<Int32> in this case).
+        // The observable returned by Observable.using constructor is the same than given by the observableFactory closure.
+        // While Observable.using create a Disposable instance (MyDisposableResource) whose lifespan is the same than the observable given by the observableFactory closure.
         
-        let xObservable = Observable.using({ return MyDisposableResource() }, observableFactory: {
+        let xObservable/*:Observable<Int32>*/ = Observable.using({ return MyDisposableResource() }, observableFactory: {
             disposable -> Observable<Int32> in
             
             return Observable<Int32>.create { observer -> Disposable in
